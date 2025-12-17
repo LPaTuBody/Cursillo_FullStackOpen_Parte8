@@ -9,13 +9,11 @@ const App = () => {
   const [page, setPage] = useState("authors");
   const result = useQuery(ALL_AUTHORS);
 
-  // console.log(result)
-
   if (result.loading) return (
     <div>
       <p>Loading...</p>
     </div>
-  )
+  );
 
   return (
     <div>
@@ -29,7 +27,7 @@ const App = () => {
       <Books show={page === "books"} />
       <NewBook show={page === "add"} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
