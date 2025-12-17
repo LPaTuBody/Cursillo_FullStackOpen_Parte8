@@ -1,0 +1,17 @@
+{
+  "name": "library",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Eleonor Rodríguez",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "graphql": "^16.11.0",
+    "graphql-tag": "^2.12.6"
+  }
+}
