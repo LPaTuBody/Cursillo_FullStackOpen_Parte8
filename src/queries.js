@@ -22,3 +22,24 @@ export const ALL_BOOKS = gql`
     }
   }
 `
+
+export const CREATE_BOOK = gql`
+  mutation crearLibro(
+    $titulo: String!,
+    $publicado: Int!,
+    $autor: String!,
+    $generos: [String!]!
+  ) {
+    addBook(
+      title: $titulo,
+      published: $publicado,
+      author: $autor,
+      genres: $generos
+    ) {
+      title
+      published
+      author
+      genres
+    }
+  }
+`
