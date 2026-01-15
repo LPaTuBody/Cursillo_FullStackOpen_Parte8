@@ -5,7 +5,7 @@ import { EDIT_AUTHOR, ALL_AUTHORS } from "../queries";
 const Authors = ({ show, authors }) => {
   const [author, setAuthor] = useState("");
   const [year, setYear] = useState("");
-  const [ editarAutor ] = useMutation(EDIT_AUTHOR, {
+  const [editarAutor ] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [ ALL_AUTHORS ]
   });
 
@@ -52,12 +52,14 @@ const Authors = ({ show, authors }) => {
         <form onSubmit={submit}>
           <div>
             <label htmlFor="name">name</label>
-            <input
-              type="text"
+            <select
               id="name"
-              value={author}
-              onChange={({target}) => setAuthor(target.value)}
-            />
+              onChange={({ target }) => setAuthor(target.value)}
+            >
+              {authors.map((a) => (
+                <option key={a.id} value={a.name}>{a.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label htmlFor="born">born</label>
@@ -65,7 +67,7 @@ const Authors = ({ show, authors }) => {
               type="number"
               id="born"
               value={year}
-              onChange={({target}) => setYear(target.value)}
+              onChange={({ target }) => setYear(target.value)}
             />
           </div>
           <button type="submit">update author</button>
