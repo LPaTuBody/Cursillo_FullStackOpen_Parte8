@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minlength: 5,
+    minlength: 3,
   },
   published: {
     type: Number,
@@ -20,6 +20,7 @@ const schema = new mongoose.Schema({
 const transformacion = {
   transform: (doc, retObj) => {
     retObj.id = retObj._id.toString();
+    retObj.author = retObj.author.toString();
     delete retObj._id;
     delete retObj.__v;
     return retObj;

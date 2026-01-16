@@ -62,8 +62,7 @@ const resolvers = {
     allBooks: async (root, args) => {
       const { author, genre } = args;
       var filtrarPor = {};
-      
-      if (!author && !genre) filtrarPor;
+
       if (author) {
         const autor = await Author.find({ name: author });
         filtrarPor = { ...filtrarPor, author: autor[0].id };
@@ -72,33 +71,8 @@ const resolvers = {
 
       const libros = await Book.find(filtrarPor).populate("author");
       return libros;
-
-      /* const libros = await Book.find({}).populate("author");
-      if (!author && !genre) return libros;
-
-      if (author) {
-        const autor = await Author.find({ name: author });
-        const libFilts = await Book.find({ author: autor[0].id });
-        return libFilts;
-      }
-
-      if (genre) {
-        const libFilts = await Book.find({ genres: genre }).populate("author");
-        return libFilts;
-      } */
-
-      
-
-      /* if (!args.author && !args.genre) return books;
-      const filterBy = (libro) => {
-        if (!args.genre) return libro.author === args.author;
-        if (!args.author) return libro.genres.includes(args.genre);
-        return (libro.genres.includes(args.genre)) && (libro.author === args.author);
-      }
-      return books.filter(filterBy) */
     },
     allAuthors: async () => (await Author.find({})),
-    // allBooks: async () => (await Book.find({}).populate("author")),
   },
   Author: {
     bookCount: async (root) => {
