@@ -1,6 +1,6 @@
 const { ApolloServer } = require("@apollo/server");
 const { startStandaloneServer } = require("@apollo/server/standalone");
-// const { v1: uuid } = require("uuid");
+const { GraphQLError } = require("graphql")
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -82,8 +82,24 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
+      if (args.title.length < 3) throw new GraphQLError(
+        "El título debe contener más de 3 caracteres", {
+        extensions: {
+          code: "BAD_USER_INPUT",
+          shortTitle: args.title,
+        }
+      });
+
       const autor = await Author.find({ name: args.author });
       if (autor.length === 0) {
+        if (args.author.length < 4) throw new GraphQLError(
+          "El nombre del autor debe ser de más de 4 caracteres", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            shortAuthorName: args.author,
+          }
+        });
+
         const newAuthor = new Author({ name: args.author });
         newAuthor.save();
         return Book.create({ ...args, author: newAuthor.id });
