@@ -14,10 +14,10 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
-    console.log("connected to", MONGODB_URI)
+    console.log("connected to", MONGODB_URI);
   })
   .catch((err) => {
-    console.log("error connection to MongoDB:", err.message)
+    console.log("error connection to MongoDB:", err.message);
   });
 
 const typeDefs = `
@@ -107,15 +107,27 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, context) => {
-      console.log("contexto", context)
-
-      if (args.title.length < 3) throw new GraphQLError(
-        "El título debe contener más de 3 caracteres", {
-        extensions: {
-          code: "BAD_USER_INPUT",
-          invalidArgs: args.title,
-        }
-      });
+      if (!Object.keys(context).length > 0) {
+        throw new GraphQLError(
+          "Se requiere autorización para realizar esta acción", {
+          extensions: { code: "AUTHORIZATION_REQUIRED" }
+        });
+      }
+      if (context.jwtError) {
+        throw new GraphQLError(
+          context.jwtError, {
+          extensions: { code: "JWT_ERROR" }
+        });
+      }
+      if (args.title.length < 3) {
+        throw new GraphQLError(
+          "El título debe contener más de 3 caracteres", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args.title,
+          }
+        });
+      }
 
       const autor = await Author.find({ name: args.author });
       if (autor.length === 0) {
@@ -135,6 +147,19 @@ const resolvers = {
       }
     },
     editAuthor: async (root, args, context) => {
+      if (!Object.keys(context).length > 0) {
+        throw new GraphQLError(
+          "Se requiere autorización para realizar esta acción", {
+          extensions: { code: "AUTHORIZATION_REQUIRED" }
+        });
+      }
+      if (context.jwtError) {
+        throw new GraphQLError(
+          context.jwtError, {
+          extensions: { code: "JWT_ERROR" }
+        });
+      }
+
       const updAuthor = await Author.findOneAndUpdate(
         { name: args.name },
         { born: args.setBornTo },
@@ -172,7 +197,7 @@ const resolvers = {
             id: user.id,
           },
           process.env.JWT_SECRET,
-          { expiresIn: 5 }
+          { expiresIn: "5h" }
         )
       };
     },
@@ -184,16 +209,17 @@ const server = new ApolloServer({ typeDefs, resolvers });
 startStandaloneServer(server, {
   listen: { port: process.env.PORT },
   context: async ({ req, res }) => {
-    // console.log("request", req.headers.authorization)
     const auth = req ? req.headers.authorization : null;
-
     if (auth && auth.startsWith("Bearer ")) {
-      const decodedToken = jwt.verify(
-        auth.substring(7), process.env.JWT_SECRET
-      );
-      const currentUser = await User.findById(decodedToken.id);
-      return { currentUser };
-    }
+      const token = auth.replace("Bearer ", "");
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const currentUser = await User.findById(decoded.id);
+        return { currentUser };
+      } catch (err) {
+        return { jwtError: err.message };
+      }
+    };
   },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
