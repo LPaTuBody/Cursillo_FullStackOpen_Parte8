@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { ALL_BOOKS } from "../queries";
 
@@ -6,30 +6,26 @@ const Books = ({ show }) => {
   if (!show) return null;
 
   const [genres, setGenres] = useState(["all genres"]);
-  const [filtGenre, setFiltGenre] = useState("all genres");
-  const [filtBooks, setFiltBooks] = useState([]);
-  const result = useQuery(ALL_BOOKS);
+  const [genero, setGenero] = useState("all genres");
+  const [autor, setAutor] = useState(null);
   
-  useEffect(() => {
-    if(!result.loading) setFiltBooks(result.data.allBooks);
-  }, [result.loading]);
+  const { loading, data } = useQuery(ALL_BOOKS, {
+    variables: {
+      autor,
+      genero: genero === "all genres" ? null : genero,
+    }
+  });
 
-  if (result.loading) return (<div>Loading...</div>);
+  if (loading) return (<div>Loading...</div>);
   
-  const books = result.data.allBooks;
+  const books = data.allBooks;
   
   books.forEach(b => {
     for (let i in b.genres) {
-      const genero = b.genres[i];
-      if (!genres.includes(genero)) setGenres(genres.concat(genero));
+      const g = b.genres[i];
+      if (!genres.includes(g)) setGenres(genres.concat(g));
     }
   }); // array de los géneros para generar los botones
-
-  const handleFilter = (genero) => {
-    setFiltGenre(genero);
-    if (genero === "all genres") setFiltBooks(books);
-    else setFiltBooks(books.filter(b => (b.genres.includes(genero))));
-  }
 
   return (
     <div>
@@ -37,10 +33,10 @@ const Books = ({ show }) => {
       <div>
         <div>
           {genres.map(g => (
-            <button key={g} onClick={() => handleFilter(g)}>{g}</button>
+            <button key={g} onClick={() => setGenero(g)}>{g}</button>
           ))}
         </div>
-        <p><strong>In genre:</strong> {filtGenre}</p>
+        <p><strong>In genre:</strong> {genero}</p>
       </div>
       <table>
         <tbody>
@@ -49,7 +45,7 @@ const Books = ({ show }) => {
             <th>Author</th>
             <th>Published</th>
           </tr>
-          {filtBooks.map((b) => (
+          {books.map((b) => (
             <tr key={b.id}>
               <td>{b.title}</td>
               <td>{b.author.name}</td>
