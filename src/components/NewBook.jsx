@@ -42,6 +42,7 @@ const NewBook = ({ show }) => {
 
   return (
     <div>
+      <h2>Add Book</h2>
       <form onSubmit={submit}>
         <div>
           <label htmlFor="tit">title</label>

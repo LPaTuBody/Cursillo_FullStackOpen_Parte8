@@ -2,24 +2,23 @@ import { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client/react";
 import { LOGIN } from "../queries";
 
-const LoginForm = ({ show, setToken, setPage }) => {
+const LoginForm = ({ show, setPage }) => {
   if (!show) return null;
 
   const [username, setUsername] = useState("");
   const [password, setPswd] = useState("");
 
-  const [login, result] = useMutation(LOGIN, {
+  const [login, { data }] = useMutation(LOGIN, {
     onError: (err) => { setError(err.graphQLErrors[0].message) },
   });
 
   useEffect(() => {
-    if (result.data) {
-      const token = result.data.login.value;
-      localStorage.setItem("userLoggedToken", token);
-      setToken(token);
-      setPage("books");
+    if (data) {
+      const token = data.login.value;
+      localStorage.setItem("user-logged-token", token);
+      setPage("authors");
     }
-  }, [result.data]);
+  }, [data]);
 
   const submit = (e) => {
     e.preventDefault();
