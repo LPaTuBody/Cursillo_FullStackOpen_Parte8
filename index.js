@@ -1,25 +1,15 @@
-const { ApolloServer } = require("@apollo/server");
-const { startStandaloneServer } = require("@apollo/server/standalone");
+const { createServer } = require("node:http");
+const { createYoga } = require("graphql-yoga");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("./models/user");
+const schema = require("./graphql/schema");
 require("dotenv").config();
-
-const {
-  typeDefs: bookTypeDefs,
-  resolvers: bookResolvers
-} = require("./graphql/book");
-const {
-  typeDefs: authorTypeDefs,
-  resolvers: authorResolvers
-} = require("./graphql/author");
-const {
-  typeDefs: userTypeDefs,
-  resolvers: userResolvers
-} = require("./graphql/user");
 
 mongoose.set("strictQuery", false);
 const MONGODB_URI = process.env.MONGODB_URI;
+const PORT = process.env.PORT;
+const SECRET = process.env.JWT_SECRET;
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
@@ -29,43 +19,29 @@ mongoose.connect(MONGODB_URI)
     console.log("error connection to MongoDB:", err.message);
   });
 
-const server = new ApolloServer({
-  typeDefs: [bookTypeDefs, authorTypeDefs, userTypeDefs],
-  resolvers: {
-    Query: {
-      ...bookResolvers.Query,
-      ...authorResolvers.Query,
-      ...userResolvers.Query
-    },
-    Mutation: {
-      ...bookResolvers.Mutation,
-      ...authorResolvers.Mutation,
-      ...userResolvers.Mutation
-    },
-    Subscription: {
-      ...bookResolvers.Subscription,
-    },
-    Author: {
-      ...authorResolvers.Author,
-    }
-  }
-});
+// cambio a Yoga porque el Apollo Server actual no maneja suscripciones
+// sin intermediarios de por medio
 
-startStandaloneServer(server, {
-  listen: { port: process.env.PORT },
-  context: async ({ req, res }) => {
+const yoga = createYoga({
+  schema,
+  context: async ({ req }) => {
     const auth = req ? req.headers.authorization : null;
     if (auth && auth.startsWith("Bearer ")) {
       const token = auth.replace("Bearer ", "");
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, SECRET);
         const currentUser = await User.findById(decoded.id);
         return { currentUser };
       } catch (err) {
         return { jwtError: err.message };
       }
     };
-  },
-}).then(({ url }) => {
-  console.log(`Server ready at ${url}`);
+  }
+});
+
+const server = createServer(yoga);
+
+server.listen(PORT, () => {
+  console.log(`Server ready at http://localhost:${PORT}/graphql`);
+  console.log(`Subscriptions on ws://localhost:${PORT}/graphql`);
 });

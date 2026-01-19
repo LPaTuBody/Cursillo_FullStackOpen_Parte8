@@ -1,8 +1,8 @@
 const Book = require("../models/book");
 const Author = require("../models/author");
 const { GraphQLError } = require("graphql");
-const { PubSub } = require("graphql-subscriptions");
-const pubsub = new PubSub();
+const { createPubSub  } = require("graphql-yoga");
+const pubsub = createPubSub();
 
 const typeDefs = `
   type Book {
@@ -99,7 +99,7 @@ const resolvers = {
   },
   Subscription: {
     bookAdded: {
-      subscribe: () => pubsub.asyncIterableIterator(["BOOK_ADDED"]),
+      subscribe: () => pubsub.subscribe("BOOK_ADDED"),
     }
   },
 };

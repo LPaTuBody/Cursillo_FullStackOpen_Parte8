@@ -16,6 +16,7 @@
     "graphql": "^16.11.0",
     "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
+    "graphql-yoga": "^5.18.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.4"
   },
