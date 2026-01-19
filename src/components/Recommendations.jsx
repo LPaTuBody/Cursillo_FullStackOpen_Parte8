@@ -1,31 +1,15 @@
-import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client/react";
-import { ALL_BOOKS, USER_LOGGED } from "../queries";
+import { ALL_BOOKS } from "../queries";
 
-const Recommendations = ({ show }) => {
+const Recommendations = ({ show, yo }) => {
   if (!show) return null;
-
-  const [books, setBooks] = useState([]);
-  const [yo, setYo] = useState({});
-
-  const {
-    loading: booksLoading,
-    data: booksData
-  } = useQuery(ALL_BOOKS);
   
-  const {
-    loading: meLoading,
-    data: meData
-  } = useQuery(USER_LOGGED, { fetchPolicy: "network-only" });
+  const { loading, data } = useQuery(ALL_BOOKS, {
+    variables: { genero: yo.favGenre },
+    fetchPolicy: "network-only"
+  });
 
-  useEffect(() => {
-    if(!booksLoading) setBooks(booksData.allBooks);
-    if(!meLoading) setYo(meData.me);
-  }, [booksLoading, meLoading]);
-
-  if (booksLoading || meLoading) return (<div>Loading...</div>);
-
-  const recBooks = books.filter(b => (b.genres.includes(yo.favGenre)));
+  if (loading) return (<div>Loading...</div>);
 
   return (
     <div>
@@ -37,7 +21,7 @@ const Recommendations = ({ show }) => {
             <th>Author</th>
             <th>Published</th>
           </tr>
-          {recBooks.map((b) => (
+          {data.allBooks.map((b) => (
             <tr key={b.id}>
               <td>{b.title}</td>
               <td>{b.author.name}</td>

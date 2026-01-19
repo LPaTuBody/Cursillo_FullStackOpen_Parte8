@@ -17,7 +17,7 @@ const NewBook = ({ show }) => {
 
   const submit = async (e) => {
     e.preventDefault();
-    console.log("add book...");
+    console.log("adding book...");
 
     crearLibro({
       variables: {
