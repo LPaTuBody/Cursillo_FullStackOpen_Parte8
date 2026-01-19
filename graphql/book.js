@@ -99,7 +99,7 @@ const resolvers = {
   },
   Subscription: {
     bookAdded: {
-      subscribe: () => pubsub.subscribe("BOOK_ADDED"),
+      subscribe: () => (pubsub.subscribe("BOOK_ADDED")),
     }
   },
 };
