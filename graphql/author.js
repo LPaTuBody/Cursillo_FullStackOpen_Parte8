@@ -26,10 +26,22 @@ const typeDefs = `
 const resolvers = {
   Query: {
     authorCount: async () => (await Author.collection.countDocuments()),
-    allAuthors: async () => (await Author.find({})),
+    allAuthors: async () => {
+      const authors = await Author.find({});
+      const books = await Book.find({});
+
+      return authors.map(author => {
+        const authorBooks = books.filter(b => b.author.toString() === author.id.toString());
+        return {
+          ...author.toObject(),
+          bookCount: authorBooks.length,
+        }
+      });
+    },
   },
   Author: {
     bookCount: async (root) => {
+      if (root.bookCount !== undefined) return root.bookCount;
       const libros = await Book.find({ author: root.id });
       return libros.length;
     },
