@@ -1,14 +1,20 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client/react";
 import { ALL_BOOKS } from "../queries";
 
 const Recommendations = ({ show, yo }) => {
-  if (!show) return null;
+  const [libros, setLibros] = useState([]);
   
   const { loading, data } = useQuery(ALL_BOOKS, {
     variables: { genero: yo.favGenre },
     fetchPolicy: "network-only"
   });
-
+  
+  useEffect(() => {
+    if (data) setLibros(data.allBooks)
+    }, [data]);
+  
+  if (!show) return null;
   if (loading) return (<div>Loading...</div>);
 
   return (
@@ -21,7 +27,7 @@ const Recommendations = ({ show, yo }) => {
             <th>Author</th>
             <th>Published</th>
           </tr>
-          {data.allBooks.map((b) => (
+          {libros.map((b) => (
             <tr key={b.id}>
               <td>{b.title}</td>
               <td>{b.author.name}</td>

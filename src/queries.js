@@ -7,7 +7,10 @@ const BOOK_DETAILS = gql`
     title
     published
     author {
+      id
       name
+      born
+      bookCount
     }
     genres
   }
@@ -26,7 +29,7 @@ export const ALL_AUTHORS = gql`
 `
 
 export const ALL_BOOKS = gql`
-  query sacarLibros(
+  query (
     $autor: String,
     $genero: String
   ) {
@@ -101,7 +104,7 @@ export const LOGIN = gql`
 `
 
 // subscriptions
-export const BOOK_ADDED = gql `
+export const BOOK_ADDED = gql`
   subscription {
     bookAdded {
       ...bookDetails 

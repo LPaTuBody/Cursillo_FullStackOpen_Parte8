@@ -3,26 +3,24 @@ import { useQuery } from "@apollo/client/react";
 import { ALL_BOOKS } from "../queries";
 
 const Books = ({ show }) => {
-  if (!show) return null;
-
   const [genres, setGenres] = useState(["all genres"]);
   const [genero, setGenero] = useState("all genres");
   const [books, setBooks] = useState([]);
   const [autor, setAutor] = useState(null);
   const genreRef = useRef(true);
-
+  
   const { loading, data } = useQuery(ALL_BOOKS, {
     variables: {
       autor,
       genero: genero === "all genres" ? null : genero,
     }
   });
-
+  
   useEffect(() => {
     if (data) {
       const libros = data.allBooks;
       setBooks(libros);
-
+      
       if (genreRef.current) {
         const generos = [];
         libros.forEach(b => {
@@ -36,9 +34,10 @@ const Books = ({ show }) => {
       }
     };
   }, [data]);
-
+  
+  if (!show) return null;
   if (loading) return (<div>Loading...</div>);
-
+  
   return (
     <div>
       <h2>Books</h2>
