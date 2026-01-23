@@ -58,17 +58,10 @@ const App = () => {
           const authorName = addedBook.author.name;
           const authorExists = data.allAuthors.find((a) => a.name === authorName);
 
-          if (authorExists) {
-            return {
-              allAuthors: data.allAuthors.map((a) =>
-                a.name === authorName ? { ...a, bookCount: a.bookCount + 1 } : a
-              )
-            };
-          } else {
-            return {
-              allAuthors: data.allAuthors.concat(addedBook.author)
-            };
-          }
+          if (authorExists) return data
+          else ({
+            allAuthors: data.allAuthors.concat(addedBook.author)
+          });
         });
       } catch (e) {
         console.log("Error updating ALL_AUTHORS cache", e);
